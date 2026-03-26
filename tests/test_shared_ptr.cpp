@@ -395,35 +395,6 @@ TEST(SharedPtrTest, MultipleSharedOwnership)
     EXPECT_EQ(TObj::dtor_cnt, 1);
 }
 
-#if 0
-TEST(SharedPtrTest, AliasingConstructor)
-{
-    struct Person
-    {
-        std::string name;
-        int age;
-    };
-
-    SharedPtr<Person> person(new Person{"Alice", 30});
-
-    // Aliasing constructor - указываем на член, но владеем объектом
-    SharedPtr<std::string> name_ptr(person, &person->name);
-
-    EXPECT_EQ(*name_ptr, "Alice");
-    EXPECT_EQ(name_ptr.get(), &person->name);
-    EXPECT_EQ(name_ptr.use_count(), 2);
-    EXPECT_EQ(person.use_count(), 2);
-
-    person.reset();
-    EXPECT_EQ(person.use_count(), 0);
-    EXPECT_EQ(name_ptr.use_count(), 1);
-    EXPECT_EQ(*name_ptr, "Alice");
-
-    name_ptr.reset();
-    // Объект Person удаляется только сейчас
-}
-#endif
-
 TEST(SharedPtrTest, ExceptionSafety)
 {
     struct ThrowingInConstructor
