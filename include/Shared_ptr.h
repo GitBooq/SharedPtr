@@ -23,7 +23,7 @@
 #include <type_traits>     // for remove_extent_t
 #include <utility>         // for exchange, swap
 #include "control_block.h" // for Cb_base, Cb_regular
-#include <compare>
+#include <compare>         // for compare_three_way
 
 namespace my::memory
 {
@@ -918,7 +918,7 @@ namespace my::memory
     template <typename T, typename U>
     auto operator<=>(const SharedPtr<T> &lhs, const SharedPtr<U> &rhs) noexcept
     {
-        return lhs.get() <=> rhs.get();
+        return std::compare_three_way{}(lhs.get(), rhs.get());
     }
 
     /**
@@ -955,6 +955,6 @@ namespace my::memory
     template <typename T>
     auto operator<=>(const SharedPtr<T> &ptr, std::nullptr_t) noexcept
     {
-        return ptr.get() <=> static_cast<SharedPtr<T>::T *>(nullptr);
+        return std::compare_three_way{}(ptr.get(), static_cast<T *>(nullptr));
     }
 } // namespace my::memory
