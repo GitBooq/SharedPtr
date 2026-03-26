@@ -471,7 +471,7 @@ namespace my::memory
         friend class WeakPtr;
 
     public:
-        using Deleter = std::default_delete<T[]>;     ///< Default deleter for arrays
+        using Deleter = std::default_delete<T[]>; ///< Default deleter for arrays
 
     private:
         T *ptr; ///< Pointer to the first element of the array
