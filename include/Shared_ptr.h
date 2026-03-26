@@ -879,8 +879,6 @@ namespace my::memory
          *
          * @return SharedPtr<T> A shared pointer to the object, or an empty one
          *         if the object no longer exists.
-         *
-         * @details This operation is atomic.
          */
         SharedPtr<T> lock() const noexcept
         {
