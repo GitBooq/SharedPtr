@@ -242,8 +242,6 @@ namespace my::memory
     template <typename T>
     class SharedPtr : public SharedPtrBase
     {
-        using element_type = T; ///< Type of managed object
-
         /**
          * @brief All WeakPtr specializations have access to private members
          *
@@ -460,7 +458,6 @@ namespace my::memory
      * - operator[] for element access
      * - Uses delete[] by default
      *
-     * @note The stored pointer is of type T* (not T[]*).
      */
     template <typename T>
     class SharedPtr<T[]> : public SharedPtrBase
@@ -474,7 +471,6 @@ namespace my::memory
         friend class WeakPtr;
 
     public:
-        using element_type = std::remove_extent_t<T>; ///< Type of array elements
         using Deleter = std::default_delete<T[]>;     ///< Default deleter for arrays
 
     private:
@@ -486,7 +482,7 @@ namespace my::memory
          * @param p Pointer to the first element.
          * @param block Control block to share.
          */
-        SharedPtr(element_type *p, Cb_base *block) noexcept
+        SharedPtr(T *p, Cb_base *block) noexcept
             : SharedPtrBase{block}, ptr{p}
         {
             if (cb != nullptr)
@@ -609,18 +605,18 @@ namespace my::memory
         /**
          * @brief Returns the stored pointer.
          *
-         * @return element_type* Pointer to the first element (may be nullptr).
+         * @return T* Pointer to the first element (may be nullptr).
          */
-        element_type *get() const noexcept { return ptr; }
+        T *get() const noexcept { return ptr; }
 
         /**
          * @brief Accesses an element of the array.
          *
          * @param idx Index of the element.
-         * @return element_type& Reference to the element.
+         * @return T& Reference to the element.
          * @warning Undefined behavior if idx is out of bounds.
          */
-        element_type &operator[](std::ptrdiff_t idx) const
+        T &operator[](std::ptrdiff_t idx) const
         {
             return get()[idx];
         }
@@ -959,6 +955,6 @@ namespace my::memory
     template <typename T>
     auto operator<=>(const SharedPtr<T> &ptr, std::nullptr_t) noexcept
     {
-        return ptr.get() <=> static_cast<SharedPtr<T>::element_type *>(nullptr);
+        return ptr.get() <=> static_cast<SharedPtr<T>::T *>(nullptr);
     }
 } // namespace my::memory
