@@ -390,8 +390,6 @@ namespace my::memory
         void reset(Y *p)
         {
             SharedPtr<T> tmp{p};
-            SharedPtrBase::reset();
-            ptr = nullptr;
             swap(tmp);
         }
 
@@ -601,8 +599,6 @@ namespace my::memory
         void reset(Y *p)
         {
             SharedPtr<T[]> tmp{p}; // can throw
-            SharedPtrBase::reset();
-            ptr = nullptr;
             swap(tmp);
         }
 
