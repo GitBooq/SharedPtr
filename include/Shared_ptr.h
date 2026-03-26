@@ -19,7 +19,7 @@
 #pragma once
 
 #include <cstddef>         // for nullptr_t, size_t, ptrdiff_t
-#include <memory>          // for default_delete, weak_ptr
+#include <memory>          // for default_delete
 #include <type_traits>     // for remove_extent_t
 #include <utility>         // for exchange, swap
 #include "control_block.h" // for Cb_base, Cb_regular
@@ -670,7 +670,6 @@ namespace my::memory
      * - Non-owning observer
      * - Can be converted to SharedPtr if the object still exists (lock())
      * - Expires when the object is destroyed
-     * - Thread-safe (the object may be destroyed in another thread)
      *
      * @see SharedPtr
      */
