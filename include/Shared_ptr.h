@@ -19,11 +19,12 @@
 #pragma once
 
 #include <cstddef>         // for nullptr_t, size_t, ptrdiff_t
+#include <concepts>        // for move_constructible
+#include <compare>         // for compare_three_way
 #include <memory>          // for default_delete
 #include <type_traits>     // for remove_extent_t
 #include <utility>         // for exchange, swap
 #include "control_block.h" // for Cb_base, Cb_regular
-#include <compare>         // for compare_three_way
 
 namespace my::memory
 {
@@ -294,6 +295,33 @@ namespace my::memory
             : SharedPtrBase(p ? new Cb_regular<T>(p) : nullptr), ptr(p) {}
 
         /**
+         * @brief Constructs a SharedPtr from nullptr and custom deleter.
+         *
+         * @param d Deleter.
+         *
+         * @throws std::bad_alloc If control block allocation fails.
+         */
+        template <std::move_constructible Deleter>
+        SharedPtr(std::nullptr_t, Deleter d)
+            : SharedPtrBase(new Cb_regular<T>(nullptr, d)) {}
+
+        /**
+         * @brief Constructs a SharedPtr from a raw pointer and custom deleter.
+         *
+         * @param p Raw pointer to manage.
+         * @param d Deleter.
+         *
+         * @throws std::bad_alloc If control block allocation fails.
+         *
+         * @warning The pointer must be allocated with `new` (or compatible).
+         */
+        template <std::move_constructible Deleter>
+        SharedPtr(T *p, Deleter d)
+            : SharedPtrBase(p ? new Cb_regular<T, Deleter>(p, d) : nullptr), ptr(p)
+        {
+        }
+
+        /**
          * @brief Copy constructor.
          *
          * @param other The SharedPtr to copy.
@@ -470,8 +498,7 @@ namespace my::memory
         template <typename>
         friend class WeakPtr;
 
-    public:
-        using Deleter = std::default_delete<T[]>; ///< Default deleter for arrays
+        using default_deleter = std::default_delete<T[]>;
 
     private:
         T *ptr; ///< Pointer to the first element of the array
@@ -514,9 +541,36 @@ namespace my::memory
          * @warning The pointer must be allocated with `new[]`.
          */
         explicit SharedPtr(T *p)
-            : SharedPtrBase(p ? new Cb_regular<T, Deleter>(p, Deleter{})
+            : SharedPtrBase(p ? new Cb_regular<T, default_deleter>(p, default_deleter{})
                               : nullptr),
               ptr(p) {}
+
+        /**
+         * @brief Constructs a SharedPtr from a nullptr and a custom deleter.
+         *
+         * @param d Deleter.
+         *
+         * @throws std::bad_alloc If control block allocation fails.
+         */
+        template <std::move_constructible Deleter>
+        SharedPtr(std::nullptr_t, Deleter d)
+            : SharedPtrBase(new Cb_regular<T>(nullptr, d)) {}
+
+        /**
+         * @brief Constructs a SharedPtr from an array pointer and a custom deleter.
+         *
+         * @param p Pointer to the first element of the array to manage.
+         * @param d Deleter.
+         *
+         * @throws std::bad_alloc If control block allocation fails.
+         *
+         * @warning The pointer must be allocated with `new` (or compatible).
+         */
+        template <std::move_constructible Deleter>
+        SharedPtr(T *p, Deleter d)
+            : SharedPtrBase(p ? new Cb_regular<T, Deleter>(p, d) : nullptr), ptr(p)
+        {
+        }
 
         /**
          * @brief Copy constructor.
